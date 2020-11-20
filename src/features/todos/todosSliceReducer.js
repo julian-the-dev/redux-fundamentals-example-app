@@ -11,11 +11,7 @@ export default function todosReducer(state = initialState, action) {
       // Can return just the new todos array - no extra object around it
       return [
         ...state,
-        {
-          id: nextTodoId(state),
-          text: action.payload,
-          completed: false,
-        },
+       action.payload
       ]
     }
     case 'todos/todoToggled': {
@@ -29,6 +25,10 @@ export default function todosReducer(state = initialState, action) {
           completed: !todo.completed,
         }
       })
+    }
+    case 'todos/todosLoaded': {
+      // Replace the existing state entirely by returning the new value
+      return action.payload
     }
     case 'todos/colorSelected': {
       const { color, todoId } = action.payload
@@ -56,5 +56,16 @@ export default function todosReducer(state = initialState, action) {
     }
     default:
       return state
+  }
+}
+
+// Write a synchronous outer function that receives the `text` parameter:
+export function saveNewTodo(text) {
+  // And then creates and returns the async thunk function:
+  return async function saveNewTodoThunk(dispatch, getState) {
+    // ✅ Now we can use the text value and send it to the server
+    const initialTodo = { text }
+    const response = await client.post('/fakeApi/todos', { todo: initialTodo })
+    dispatch({ type: 'todos/todoAdded', payload: response.todo })
   }
 }
