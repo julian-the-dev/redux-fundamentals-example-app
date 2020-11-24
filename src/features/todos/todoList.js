@@ -1,26 +1,25 @@
-import React from 'react';
-import { shallowEqual, useSelector } from 'react-redux';
-import TodoListItem from './todoListItem';
-
-const selectTodos = state => state.todos;
-const selectFilters = state => state.filters;
-const filterTodosByColor = (todo, colors) => {
-  if(!colors.length) {
-    return true;
-  }
-  return !todo.color ? true : colors.indexOf(todo.color) >=0;
-}
+import React from 'react'
+import { useSelector } from 'react-redux'
+import TodoListItem from './todoListItem'
+import { selectFilteredTodoIds } from './todosSliceReducer'
 
 const TodoList = () => {
-  const todos = useSelector(selectTodos, shallowEqual)
-  const filters = useSelector(selectFilters);
-  console.log(filters);
+  const todoIds = useSelector(selectFilteredTodoIds)
+  const loadingStatus = useSelector((state) => state.todos.status)
 
-  const renderedListItems = todos.filter(todo => filterTodosByColor(todo, filters.colors)).map(todo => {
-    return <TodoListItem key={todo.id} id={todo.id} />
+  if (loadingStatus === 'loading') {
+    return (
+      <div className="todo-list">
+        <div className="loader" />
+      </div>
+    )
+  }
+
+  const renderedListItems = todoIds.map((todoId) => {
+    return <TodoListItem key={todoId} id={todoId} />
   })
 
   return <ul className="todo-list">{renderedListItems}</ul>
 }
 
-export default TodoList;
+export default TodoList
